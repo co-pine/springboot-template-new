@@ -16,6 +16,7 @@ import com.pine.backup.model.vo.UserVO;
 import com.pine.backup.service.BackupService;
 import com.pine.backup.service.UserService;
 import com.pine.backup.util.ThreadLocalUtil;
+import com.pine.backup.util.WrapperUtil;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
@@ -191,11 +192,7 @@ public class BackupServiceImpl extends ServiceImpl<BackupMapper, Backup> impleme
         queryWrapper.ge(ObjectUtils.isNotEmpty(startTime), "createTime", startTime);
         queryWrapper.le(ObjectUtils.isNotEmpty(endTime), "createTime", endTime);
 
-        // MyBatis-plus 自带 columnToSqlSegment 方法进行注入过滤处理，不需要SqlUtils.validSortField(sortField)
-        boolean ascValid = ascSortField != null && ascSortField.size() > 0;
-        boolean descValid = descSortField != null && descSortField.size() > 0;
-        queryWrapper.orderByAsc(ascValid, ascSortField);
-        queryWrapper.orderByDesc(descValid, descSortField);
+        WrapperUtil.handleOrder(queryWrapper, ascSortField, descSortField);
 
         return queryWrapper;
     }

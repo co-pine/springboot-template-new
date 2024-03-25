@@ -5,7 +5,6 @@ import cn.binarywang.wx.miniapp.bean.WxMaJscode2SessionResult;
 import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.extra.servlet.JakartaServletUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -24,6 +23,7 @@ import com.pine.backup.model.vo.LoginUserVO;
 import com.pine.backup.model.vo.UserVO;
 import com.pine.backup.service.UserService;
 import com.pine.backup.util.ThreadLocalUtil;
+import com.pine.backup.util.WrapperUtil;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -47,7 +47,7 @@ import static com.pine.backup.constant.UserConstant.USER_LOGIN_STATE;
 /**
  * 用户服务实现
  *
-* @author pine
+ * @author pine
  */
 @Service
 @Slf4j
@@ -56,7 +56,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     /**
      * 盐值，混淆密码
      */
-    private static final String SALT = "yupi";
+    private static final String SALT = "pine";
 
     @Resource
     private VipConfigManager vipConfigManager;
@@ -180,9 +180,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     /**
      * 获取当前登录用户
-     *
-     * @param request
-     * @return
      */
     @Override
     public User getLoginUser(HttpServletRequest request) {
@@ -201,8 +198,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     /**
      * 获取当前登录用户（允许未登录）
-     *
-     * @return
      */
     @Override
     public User getLoginUserPermitNull() {
@@ -221,9 +216,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     /**
      * 是否为管理员
-     *
-     * @param request
-     * @return
      */
     @Override
     public boolean isAdmin(HttpServletRequest request) {
@@ -255,16 +247,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             return false;
         }
         // VIP 已过期
-        if (vipExpireTime == null || vipExpireTime.before(new Date())) {
-            return false;
-        }
-        return true;
+        return vipExpireTime != null && !vipExpireTime.before(new Date());
     }
 
     /**
      * 用户注销
-     *
-     * @param request
      */
     @Override
     public boolean userLogout(HttpServletRequest request) {
@@ -279,7 +266,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Override
     public Boolean updateUserVipInfo(User oldUser, Date vipExpireTime, ZsxqAuthRequest zsxqAuthRequest, String vipType) {
         final Long userId = oldUser.getId();
-        User user = this.getById(userId);
         // 更新用户信息
         User updateUser = new User();
         updateUser.setId(userId);
@@ -294,42 +280,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             log.info("用户 {} 会员信息更新失败，会员类型 {}", userId, vipType);
             throw new BusinessException(ErrorCode.OPERATION_ERROR, "会员类型异常");
         }
-        // updateUser.setCheckLeft(user.getCheckLeft() + config.getCheckCount());
-        // updateUser.setGenerateLeft(user.getGenerateLeft() + config.getGenerateCount());
-        // updateUser.setImportLeft(user.getImportLeft() + config.getImportCount());
-        // updateUser.setModuleOptimizeLeft(user.getModuleOptimizeLeft() + config.getModuleOptimizeCount());
-
-        // 关联星球信息
-        // if (zsxqAuthRequest != null) {
-        //     Long planetUserId = zsxqAuthRequest.getUserId();
-        //     String userName = zsxqAuthRequest.getUserName();
-        //     String planetCode = String.valueOf(zsxqAuthRequest.getUserNumber());
-        //     Long joinTime = zsxqAuthRequest.getJoinTime();
-        //     Long expireTime = zsxqAuthRequest.getExpireTime();
-        //     updateUser.setPlanetCode(planetCode);
-        //     updateUser.setPlanetUserId(planetUserId);
-        //     // 设置星球信息
-        //     UserPlanetExtraInfo userPlanetExtraInfo = new UserPlanetExtraInfo();
-        //     userPlanetExtraInfo.setUserName(userName);
-        //     String joinTimeStr = null;
-        //     if (joinTime != null) {
-        //         joinTimeStr = DateUtil.formatDateTime(new Date(joinTime * 1000));
-        //     }
-        //     userPlanetExtraInfo.setJoinTime(joinTimeStr);
-        //     if (expireTime != null && expireTime != 0) {
-        //         String expireTimeStr = DateUtil.formatDateTime(new Date(expireTime * 1000));
-        //         userPlanetExtraInfo.setExpireTime(expireTimeStr);
-        //     }
-        //     updateUser.setPlanetExtraInfo(JSONUtil.toJsonStr(userPlanetExtraInfo));
-        // }
-
         // 更新用户
         boolean result = this.updateById(updateUser);
         if (!result) {
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "更新用户会员信息失败");
         }
         log.info("updateUserVipInfo updateUser = {}", updateUser);
-        return result;
+        return true;
     }
 
     @Override
@@ -381,24 +338,19 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         queryWrapper.like(StringUtils.isNotBlank(userProfile), "userProfile", userProfile);
         queryWrapper.like(StringUtils.isNotBlank(userName), "userName", userName);
 
-        // MyBatis-plus 自带 columnToSqlSegment 方法进行注入过滤处理，不需要SqlUtils.validSortField(sortField)
-        boolean ascValid = ascSortField != null && ascSortField.size() > 0;
-        boolean descValid = descSortField != null && descSortField.size() > 0;
-        queryWrapper.orderByAsc(ascValid, ascSortField);
-        queryWrapper.orderByDesc(descValid, descSortField);
+        WrapperUtil.handleOrder(queryWrapper, ascSortField, descSortField);
 
         return queryWrapper;
     }
 
     /**
      * 微信小程序登录
-     * @param code
-     * @param request
-     * @return
+     *
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public LoginUserVO userLoginByWxMiniapp(String code, HttpServletRequest request) {
-        WxMaJscode2SessionResult wxMaJscode2SessionResult = null;
+        WxMaJscode2SessionResult wxMaJscode2SessionResult;
         try {
             wxMaJscode2SessionResult = wxMaService.jsCode2SessionInfo(code);
             log.info("获取用户信息成功，unionId: {}", wxMaJscode2SessionResult.getUnionid());
@@ -423,7 +375,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         synchronized (useId.intern()) {
             // 查询用户是否已存在
             QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-            // todo 根据实际情况改
             queryWrapper.eq("wxAppOpenId", useId);
             User oldUser = this.getOne(queryWrapper);
             // 被封号，禁止获取动态码
@@ -439,7 +390,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                     this.addUser(newUser);
                     userId = newUser.getId();
                 } catch (Exception e) {
-                    log.error("用户注册失败，code: {}, WxMaJscode2SessionResult: {}, newUser: {}", code, wxMaJscode2SessionResult, newUser);
+                    log.error("用户注册失败，code: {}, WxMaJsCode2SessionResult: {}, newUser: {}", code, wxMaJscode2SessionResult, newUser);
                     throw new BusinessException(ErrorCode.OPERATION_ERROR, "用户注册失败");
                 }
             } else {
