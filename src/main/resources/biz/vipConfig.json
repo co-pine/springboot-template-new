@@ -1,0 +1,49 @@
+[
+  {
+    "role": "ban",
+    "addLeftNum": 0,
+    "maxLeftNum": 0,
+    "maxChatUserNum": 0,
+    "messageRetainDay": 0,
+    "downloadDrawPictureCost": 10000
+  },
+  {
+    "role": "user",
+    "addLeftNum": 5,
+    "maxLeftNum": 100,
+    "maxChatUserNum": 2,
+    "messageRetainDay": 7,
+    "downloadDrawPictureCost": 5
+  },
+  {
+    "role": "vip",
+    "addLeftNum": 100,
+    "maxLeftNum": 1000,
+    "maxChatUserNum": 10,
+    "messageRetainDay": 30,
+    "downloadDrawPictureCost": 0,
+    "drawMode": "fast",
+    "canWriteBook": true
+  },
+  {
+    "role": "svip",
+    "addLeftNum": 200,
+    "maxLeftNum": 3000,
+    "maxChatUserNum": 20,
+    "messageRetainDay": 90,
+    "downloadDrawPictureCost": 0,
+    "modelMaxTokens": 4096,
+    "drawMode": "fast",
+    "canWriteBook": true
+  },
+  {
+    "role": "admin",
+    "addLeftNum": 200,
+    "maxLeftNum": 3000,
+    "maxChatUserNum": 20,
+    "messageRetainDay": 90,
+    "downloadDrawPictureCost": 0,
+    "drawMode": "fast",
+    "canWriteBook": true
+  }
+]

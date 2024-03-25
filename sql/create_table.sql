@@ -1,38 +1,48 @@
--- 创建数据库
-create database if not exists template_new;
+# 数据库初始化
+
+-- 创建库
+create database if not exists pine_backup;
+
+-- 切换库
+use pine_backup;
+
 -- 用户表
-create table if not exists template_new.user
+create table if not exists user
 (
-    id                bigint auto_increment comment 'id' primary key,
-    unionId           varchar(256) comment '开放平台id',
-    mpOpenId          varchar(256) comment '公众号openId',
-    mnOpenId          varchar(256) comment '小程序openId',
-    userName          varchar(256) comment '用户昵称',
-    userAvatar        varchar(1024) comment '用户头像',
-    gender            tinyint comment '性别：0-女，1-男',
-    userProfile       varchar(512) comment '简介',
-    email             varchar(256) comment '邮箱',
-    phone             varchar(128) comment '手机号',
-    userRole          varchar(256) default 'user'            not null comment '用户角色：user/vip/admin/ban',
-    interests         text comment '兴趣',
-    place             varchar(256) comment '地区',
-    birthday          varchar(256) comment '生日',
-    jobStatus         varchar(256) comment '工作状态（在校、找实习、实习中、找工作、已工作）',
-    direction         varchar(256) comment '主攻方向',
-    goal              varchar(512) comment '目标',
-    github            varchar(512) comment 'github',
-    blog              varchar(512) comment '博客',
-    school            varchar(256) comment '学校',
-    major             varchar(256) comment '专业',
-    education         varchar(256) comment '学历',
-    graduationYear    int(11) comment '毕业年份',
-    company           varchar(256) comment '公司',
-    job               varchar(256) comment '岗位',
-    workYear          int(11) comment '工作年限',
-    vipExpireTime     datetime comment '会员过期时间',
-    lastLoginTime     datetime comment '上次登录时间',
-    createTime        datetime     default CURRENT_TIMESTAMP not null comment '创建时间',
-    updateTime        datetime     default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间',
-    isDelete          tinyint      default 0                 not null comment '是否删除',
+    id            bigint auto_increment comment 'id' primary key,
+    userAccount   varchar(256)                           null comment '账号',
+    userPassword  varchar(512)                           null comment '密码',
+    unionId       varchar(256)                           null comment '微信开放平台id',
+    mpOpenId      varchar(256)                           null comment '公众号openId',
+    wxAppOpenId   varchar(256)                           null comment '微信小程序openId',
+    userName      varchar(256)                           null comment '用户昵称',
+    userAvatar    varchar(1024)                          null comment '用户头像',
+    userProfile   varchar(512)                           null comment '用户简介',
+    userRole      varchar(256) default 'user'            not null comment '用户角色：user/admin/ban',
+    scene         varchar(128)                           null comment '场景码',
+    vipExpireTime datetime                               null comment '会员过期时间',
+    createTime    datetime     default CURRENT_TIMESTAMP not null comment '创建时间',
+    updateTime    datetime     default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间',
+    isDelete      tinyint      default 0                 not null comment '是否删除',
     index idx_unionId (unionId)
     ) comment '用户' collate = utf8mb4_unicode_ci;
+
+-- 帖子表
+create table if not exists post
+(
+    id          bigint auto_increment comment 'id' primary key,
+    title       varchar(512)                       null comment '标题',
+    content     text                               null comment '内容',
+    contentType int      default 0                 null comment '内容格式（0 普通文本  1 md  2 富文本）',
+    tags        varchar(1024)                      null comment '标签列表（json 数组）',
+    viewNum     int      default 0                 not null comment '浏览量',
+    thumbNum    int      default 0                 not null comment '点赞数',
+    favourNum   int      default 0                 not null comment '收藏数',
+    priority    int                                null comment '优先级 999 精选',
+    userId      bigint                             not null comment '创建用户 id',
+    editTime    datetime default CURRENT_TIMESTAMP not null comment '编辑时间',
+    createTime  datetime default CURRENT_TIMESTAMP not null comment '创建时间',
+    updateTime  datetime default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间',
+    isDelete    tinyint  default 0                 not null comment '是否删除',
+    index idx_userId (userId)
+    ) comment '帖子' collate = utf8mb4_unicode_ci;

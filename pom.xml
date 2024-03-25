@@ -9,15 +9,38 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.pine</groupId>
-    <artifactId>springboot-template-new</artifactId>
+    <artifactId>pine-backup</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>springboot-template-new</name>
-    <description>springboot-template-new</description>
+    <name>pine-backup</name>
+    <description>pine-backup</description>
     <properties>
         <java.version>21</java.version>
         <org.mybatis.starter.version>3.0.3</org.mybatis.starter.version>
     </properties>
     <dependencies>
+        <!-- 微信小程序 -->
+        <dependency>
+            <groupId>com.github.binarywang</groupId>
+            <artifactId>wx-java-miniapp-spring-boot-starter</artifactId>
+            <version>4.4.0</version>
+        </dependency>
+        <!-- 微信公众号 -->
+        <dependency>
+            <groupId>com.github.binarywang</groupId>
+            <artifactId>wx-java-mp-spring-boot-starter</artifactId>
+            <version>4.4.0</version>
+        </dependency>
+        <!-- AOP -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-aop</artifactId>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/cn.hutool/hutool-all -->
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-all</artifactId>
+            <version>5.8.4.M1</version>
+        </dependency>
         <!-- https://doc.xiaominfo.com/knife4j/documentation/get_start.html-->
         <dependency>
             <groupId>com.github.xiaoymin</groupId>
