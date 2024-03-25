@@ -420,7 +420,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             useId = unionId;
         }
 
-        // todo 改为分布式锁
         synchronized (useId.intern()) {
             // 查询用户是否已存在
             QueryWrapper<User> queryWrapper = new QueryWrapper<>();

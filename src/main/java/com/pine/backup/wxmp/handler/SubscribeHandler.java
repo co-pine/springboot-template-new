@@ -28,7 +28,6 @@ public class SubscribeHandler implements WxMpMessageHandler {
     public WxMpXmlOutMessage handle(WxMpXmlMessage wxMpXmlMessage, Map<String, Object> map,
             WxMpService wxMpService, WxSessionManager wxSessionManager) throws WxErrorException {
         String scene = wxMpCommonService.writeScene(wxMpXmlMessage, wxMpService);
-        // TODO: 2024/1/5 修改
         String content;
         if (StringUtils.isBlank(scene)) {
             content = "登录失败，请稍后重试";

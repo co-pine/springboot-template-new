@@ -33,7 +33,6 @@ public class LoginHandler implements WxMpMessageHandler {
         if (StringUtils.isBlank(scene)) {
             content = "登录失败，请稍后重试";
         } else {
-            // TODO: 2024/1/5 修改
             content = "招呼语";
         }
         // 调用接口，返回验证码

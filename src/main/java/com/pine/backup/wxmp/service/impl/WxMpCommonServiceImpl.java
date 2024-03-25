@@ -43,7 +43,7 @@ public class WxMpCommonServiceImpl implements WxMpCommonService {
         }
         // 校验是否要登录
         String eventKey = wxMpXmlMessage.getEventKey();
-        String scene = "";
+        String scene;
         // 扫场景码登录
         if (eventKey.contains("login")) {
             String[] strings = eventKey.split("_");
@@ -53,7 +53,6 @@ public class WxMpCommonServiceImpl implements WxMpCommonService {
             scene = RandomUtil.randomString(32);
         }
         // 需要登录
-        // todo 改为分布式锁
         synchronized (unionId.intern()) {
             // 查询用户是否已存在
             QueryWrapper<User> queryWrapper = new QueryWrapper<>();
@@ -92,7 +91,6 @@ public class WxMpCommonServiceImpl implements WxMpCommonService {
         User user = new User();
         user.setUnionId(unionId);
         user.setMpOpenId(mpOpenId);
-        // todo 修改
         user.setUserName("项目名" + RandomUtil.randomNumbers(4));
         return user;
     }
